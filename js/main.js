@@ -593,8 +593,16 @@ function renderEvents(lang) {
            ${dict['events.enrollSoon']}
          </button>`;
 
+    const imgHtml = ev.image
+      ? `<div class="event-card-img-wrap">
+           <img class="event-card-img" src="${ev.image}" alt="${title}" loading="lazy"
+                onerror="this.closest('.event-card-img-wrap').style.display='none'" />
+         </div>`
+      : '';
+
     return `
       <article class="event-card${ev.featured ? ' event-featured' : ''}" aria-label="${title}">
+        ${imgHtml}
         <div class="event-header">
           ${ev.featured ? `<span class="event-badge event-badge--featured">${dict['events.featured']}</span>` : ''}
           <span class="event-type">${typeLabel}</span>
@@ -622,7 +630,13 @@ function renderEvents(lang) {
 
 
 /* ============================================================
-   RENDER GALLERY (driven by data/events.js)
+   GALLERY SLIDER STATE
+   ============================================================ */
+let sliderIndex = 0;
+let sliderTimer = null;
+
+/* ============================================================
+   RENDER GALLERY — full-width slideshow (driven by data/events.js)
    ============================================================ */
 function renderGallery(lang) {
   const container = document.getElementById('gallery-container');
@@ -635,40 +649,106 @@ function renderGallery(lang) {
     return;
   }
 
-  container.innerHTML = items.map(item => {
+  // Stop any running timer before re-rendering
+  if (sliderTimer) { clearInterval(sliderTimer); sliderTimer = null; }
+  sliderIndex = 0;
+
+  const slidesHtml = items.map((item, i) => {
     const title       = (item.title[lang]       || item.title.es       || '').trim();
     const description = (item.description[lang] || item.description.es || '').trim();
-    const date        = item.date
-      ? (item.date[lang] || item.date.es || '').trim()
-      : '';
+    const date        = item.date ? (item.date[lang] || item.date.es || '').trim() : '';
 
     return `
-      <div class="gallery-card">
-        <div class="gallery-img-wrap">
+      <div class="slider-slide" role="group" aria-label="${title}">
+        <div class="slide-img-wrap">
           <img
             src="${item.image}"
             alt="${title}"
-            loading="lazy"
-            onerror="this.closest('.gallery-img-wrap').classList.add('img-error')"
+            loading="${i === 0 ? 'eager' : 'lazy'}"
+            onerror="this.closest('.slide-img-wrap').classList.add('img-error')"
           />
-          <div class="gallery-img-fallback" aria-hidden="true">📸</div>
+          <div class="slide-img-fallback" aria-hidden="true">📸</div>
         </div>
-        <div class="gallery-card-body">
-          ${date ? `<span class="gallery-date">${date}</span>` : ''}
-          <h3 class="gallery-title">${title}</h3>
-          <p class="gallery-desc">${description}</p>
+        <div class="slide-text">
+          ${date ? `<span class="slide-date">${date}</span>` : ''}
+          <h3 class="slide-title">${title}</h3>
+          <p class="slide-desc">${description}</p>
+          <div class="slide-counter">${i + 1} / ${items.length}</div>
         </div>
       </div>`;
   }).join('');
 
-  // On language re-render, show cards instantly
-  if (animObserver) {
-    container.querySelectorAll('.gallery-card').forEach(el => {
-      el.style.opacity = '1';
-      el.style.transform = 'translateY(0)';
-      el.style.transition = 'none';
-    });
+  container.innerHTML = `
+    <div class="slider-track">${slidesHtml}</div>
+    <button class="slider-btn slider-prev" aria-label="Anterior">&#8249;</button>
+    <button class="slider-btn slider-next" aria-label="Siguiente">&#8250;</button>
+    <div class="slider-dots" role="tablist"></div>`;
+
+  initGallerySlider(items.length);
+}
+
+function initGallerySlider(total) {
+  const container  = document.getElementById('gallery-container');
+  const track      = container.querySelector('.slider-track');
+  const dotsWrap   = container.querySelector('.slider-dots');
+  const prevBtn    = container.querySelector('.slider-prev');
+  const nextBtn    = container.querySelector('.slider-next');
+
+  if (!track || total === 0) return;
+
+  // Build dots
+  dotsWrap.innerHTML = Array.from({ length: total }, (_, i) =>
+    `<button class="slider-dot${i === 0 ? ' active' : ''}" role="tab"
+             aria-label="Slide ${i + 1}" aria-selected="${i === 0}"></button>`
+  ).join('');
+
+  dotsWrap.querySelectorAll('.slider-dot').forEach((dot, i) => {
+    dot.addEventListener('click', () => slideTo(i, total, container));
+  });
+
+  prevBtn.addEventListener('click', () =>
+    slideTo((sliderIndex - 1 + total) % total, total, container));
+  nextBtn.addEventListener('click', () =>
+    slideTo((sliderIndex + 1) % total, total, container));
+
+  // Touch / swipe support
+  let touchStartX = 0;
+  container.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  container.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) {
+      slideTo(dx < 0
+        ? (sliderIndex + 1) % total
+        : (sliderIndex - 1 + total) % total,
+        total, container);
+    }
+  });
+
+  updateSliderUI(container);
+  if (total > 1) {
+    sliderTimer = setInterval(() =>
+      slideTo((sliderIndex + 1) % total, total, container), 5500);
   }
+}
+
+function slideTo(index, total, container) {
+  sliderIndex = index;
+  updateSliderUI(container);
+  // Reset auto-advance
+  if (sliderTimer) { clearInterval(sliderTimer); sliderTimer = null; }
+  if (total > 1) {
+    sliderTimer = setInterval(() =>
+      slideTo((sliderIndex + 1) % total, total, container), 5500);
+  }
+}
+
+function updateSliderUI(container) {
+  const track = container.querySelector('.slider-track');
+  if (track) track.style.transform = `translateX(-${sliderIndex * 100}%)`;
+  container.querySelectorAll('.slider-dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === sliderIndex);
+    dot.setAttribute('aria-selected', String(i === sliderIndex));
+  });
 }
 
 

@@ -9,10 +9,12 @@
  *   • Set `enrollUrl` to a Google Forms link to enable the enroll button.
  *     Leave it as an empty string ("") to show the button as disabled.
  *   • `price` is optional — omit the field to hide the price row.
+ *   • `image` is optional — replace the picsum URL with your own photo path,
+ *     e.g. "assets/events/gt-bogota-2025.jpg"
  *
  * Gallery
- *   • Drop images into assets/gallery/ and reference them in the `gallery` array.
- *   • A placeholder icon is shown automatically when an image is missing.
+ *   • Drop real images into assets/gallery/ and update the `image` field.
+ *   • A 📸 placeholder is shown automatically when an image is missing.
  */
 window.DICE_EVENTS = {
 
@@ -24,6 +26,7 @@ window.DICE_EVENTS = {
        active      {boolean}  false = hidden from the page
        featured    {boolean}  Shows "Destacado / Featured" badge
        type        {string}   "wh40k" | "aos" | "killteam" | "other"
+       image       {string}   Card header photo (optional)
        title       {object}   { es, en }
        date        {string}   ISO start date "YYYY-MM-DD"
        dateEnd     {string}   ISO end date   "YYYY-MM-DD" (optional)
@@ -39,6 +42,7 @@ window.DICE_EVENTS = {
       active: true,
       featured: true,
       type: "wh40k",
+      image: "https://picsum.photos/seed/wh40k-gt/800/420",
       title: {
         es: "GT Bogotá Open 2025",
         en: "GT Bogotá Open 2025"
@@ -66,6 +70,7 @@ window.DICE_EVENTS = {
       active: true,
       featured: false,
       type: "aos",
+      image: "https://picsum.photos/seed/aos-sigmar/800/420",
       title: {
         es: "AoS Grand Tournament",
         en: "AoS Grand Tournament"
@@ -93,6 +98,7 @@ window.DICE_EVENTS = {
       active: true,
       featured: false,
       type: "killteam",
+      image: "https://picsum.photos/seed/killteam2025/800/420",
       title: {
         es: "Liga Kill Team — Temporada 1",
         en: "Kill Team League — Season 1"
@@ -121,15 +127,14 @@ window.DICE_EVENTS = {
      GALLERY
      ───────────────────────────────────────────────────────────
      Fields:
-       image       {string} Path relative to site root
-                            e.g. "assets/gallery/gt2024.jpg"
+       image       {string} URL or path — replace picsum with real photos
        title       {object} { es, en }
        description {object} { es, en }
        date        {object} { es, en } (optional)
   ══════════════════════════════════════════════════════════════ */
   gallery: [
     {
-      image: "assets/gallery/event-gt-2024.jpg",
+      image: "https://picsum.photos/seed/gt-bogota-2024/1200/700",
       title: { es: "GT Bogotá 2024", en: "GT Bogotá 2024" },
       description: {
         es: "El Grand Tournament más grande del año reunió a los mejores jugadores de Colombia en una jornada épica de Warhammer 40K.",
@@ -138,7 +143,7 @@ window.DICE_EVENTS = {
       date: { es: "Noviembre 2024", en: "November 2024" }
     },
     {
-      image: "assets/gallery/event-killteam-2024.jpg",
+      image: "https://picsum.photos/seed/killteam-liga-2024/1200/700",
       title: { es: "Liga Kill Team 2024", en: "Kill Team League 2024" },
       description: {
         es: "Semanas de competencia intensa, estrategia y camaradería en nuestra primera liga oficial de Kill Team.",
@@ -147,7 +152,7 @@ window.DICE_EVENTS = {
       date: { es: "Agosto – Octubre 2024", en: "August – October 2024" }
     },
     {
-      image: "assets/gallery/event-painting-2024.jpg",
+      image: "https://picsum.photos/seed/painting-workshop/1200/700",
       title: { es: "Taller de Pintura 2024", en: "Painting Workshop 2024" },
       description: {
         es: "Nuestros talleres de pintura reúnen a hobbyistas de todos los niveles para aprender técnicas y compartir la pasión por las miniaturas.",
@@ -156,7 +161,7 @@ window.DICE_EVENTS = {
       date: { es: "Septiembre 2024", en: "September 2024" }
     },
     {
-      image: "assets/gallery/event-aos-2024.jpg",
+      image: "https://picsum.photos/seed/aos-open-2024/1200/700",
       title: { es: "AoS Open 2024", en: "AoS Open 2024" },
       description: {
         es: "El primer Grand Tournament de Age of Sigmar en Colombia, un hito histórico para el wargaming en Bogotá.",
