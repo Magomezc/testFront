@@ -1776,13 +1776,16 @@ button {
 /* Sliding track */
 .slider-track {
   display: flex;
+  flex-wrap: nowrap;
   transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
 }
 
-/* Each slide */
+/* Each slide — flex: 0 0 100% is the canonical CSS slider trick:
+   never shrink/grow, always exactly 100% of the container width  */
 .slider-slide {
-  min-width: 100%;
+  flex: 0 0 100%;
+  width: 100%;
   display: flex;
   align-items: stretch;
 }
@@ -1794,10 +1797,13 @@ button {
   flex-shrink: 0;
   overflow: hidden;
   background-color: var(--color-bg-section);
-  min-height: 400px;
+  height: 420px; /* explicit height so img height:100% resolves correctly */
 }
 
+/* Absolutely-positioned img fills the container at any aspect ratio */
 .slide-img-wrap img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1926,7 +1932,7 @@ button {
   }
   .slide-img-wrap {
     width: 100%;
-    min-height: 220px;
+    height: 220px; /* explicit so img fills it */
   }
   .slide-text {
     padding: var(--space-xl) var(--space-lg) var(--space-2xl);
