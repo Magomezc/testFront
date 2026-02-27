@@ -343,79 +343,8 @@
           </p>
         </div>
 
-        <div class="events-grid">
-
-          <!-- Event Card 1 -->
-          <article class="event-card event-featured" aria-label="Torneo Warhammer 40K GT">
-            <div class="event-header">
-              <span class="event-badge event-badge--featured" data-i18n="events.featured">Destacado</span>
-              <span class="event-type" data-i18n="events.type40k">Warhammer 40,000</span>
-            </div>
-            <div class="event-body">
-              <h3 class="event-title" data-i18n="events.ev1Title">GT Bogotá Open 2025</h3>
-              <time class="event-date" datetime="2025-03-15" data-i18n="events.ev1Date">15–16 Marzo 2025</time>
-              <p class="event-desc" data-i18n="events.ev1Desc">
-                Grand Tournament oficial de Warhammer 40K. Formato ITC. Clasificatorio para Golden Ticket.
-                Cupos limitados.
-              </p>
-              <ul class="event-details" role="list">
-                <li data-i18n="events.ev1d1">📍 Bogotá, Colombia</li>
-                <li data-i18n="events.ev1d2">⚔️ 2000 pts — Formato ITC</li>
-                <li data-i18n="events.ev1d3">🏆 Golden Ticket en juego</li>
-              </ul>
-            </div>
-            <div class="event-footer">
-              <a href="#contacto" class="btn btn-primary btn-sm" data-i18n="events.register">Registrarse</a>
-            </div>
-          </article>
-
-          <!-- Event Card 2 -->
-          <article class="event-card" aria-label="Torneo Age of Sigmar GT">
-            <div class="event-header">
-              <span class="event-type" data-i18n="events.typeAoS">Age of Sigmar</span>
-            </div>
-            <div class="event-body">
-              <h3 class="event-title" data-i18n="events.ev2Title">AoS Grand Tournament</h3>
-              <time class="event-date" datetime="2025-04-05" data-i18n="events.ev2Date">5–6 Abril 2025</time>
-              <p class="event-desc" data-i18n="events.ev2Desc">
-                Torneo GT de Age of Sigmar, el más grande de Colombia. Competencia de élite con
-                los mejores jugadores del país.
-              </p>
-              <ul class="event-details" role="list">
-                <li data-i18n="events.ev2d1">📍 Bogotá, Colombia</li>
-                <li data-i18n="events.ev2d2">⚔️ Formato GHB oficial</li>
-                <li data-i18n="events.ev2d3">🎖️ Premios especiales</li>
-              </ul>
-            </div>
-            <div class="event-footer">
-              <a href="#contacto" class="btn btn-primary btn-sm" data-i18n="events.register">Registrarse</a>
-            </div>
-          </article>
-
-          <!-- Event Card 3 -->
-          <article class="event-card" aria-label="Liga Kill Team">
-            <div class="event-header">
-              <span class="event-type" data-i18n="events.typeKT">Kill Team</span>
-            </div>
-            <div class="event-body">
-              <h3 class="event-title" data-i18n="events.ev3Title">Liga Kill Team — Temporada 1</h3>
-              <time class="event-date" datetime="2025-02-01" data-i18n="events.ev3Date">Febrero – Mayo 2025</time>
-              <p class="event-desc" data-i18n="events.ev3Desc">
-                Liga competitiva de Kill Team con formato de liguilla y eliminatorias. Perfecta para
-                iniciarte en el juego competitivo.
-              </p>
-              <ul class="event-details" role="list">
-                <li data-i18n="events.ev3d1">📍 Dice and Brush — Bogotá</li>
-                <li data-i18n="events.ev3d2">📅 Cada sábado</li>
-                <li data-i18n="events.ev3d3">🎯 Nivel abierto</li>
-              </ul>
-            </div>
-            <div class="event-footer">
-              <a href="#contacto" class="btn btn-primary btn-sm" data-i18n="events.register">Registrarse</a>
-            </div>
-          </article>
-
-        </div>
+        <!-- Populated dynamically from data/events.js -->
+        <div id="events-container" class="events-grid"></div>
 
         <!-- Full calendar CTA -->
         <div class="events-cta">
@@ -424,6 +353,28 @@
             Ver Calendario Completo
           </a>
         </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================
+         SECTION 3b: EVENT GALLERY
+    ========================================================= -->
+    <section class="gallery section" id="galeria" aria-labelledby="gallery-heading">
+      <div class="container">
+
+        <div class="section-header">
+          <span class="section-tag" data-i18n="gallery.tag">Galería</span>
+          <h2 class="section-title" id="gallery-heading" data-i18n="gallery.title">
+            Momentos Épicos
+          </h2>
+          <p class="section-subtitle" data-i18n="gallery.subtitle">
+            Revive los mejores momentos de nuestra comunidad
+          </p>
+        </div>
+
+        <!-- Populated dynamically from data/events.js -->
+        <div id="gallery-container" class="gallery-grid"></div>
 
       </div>
     </section>
@@ -873,6 +824,7 @@
   <!-- ============================================================
        MAIN JAVASCRIPT
   ============================================================ -->
+  <script src="data/events.js" defer></script>
   <script src="js/main.js" defer></script>
 
 </body>

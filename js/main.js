@@ -80,9 +80,19 @@ const i18n = {
     'events.ev3d1':    '📍 Dice and Brush — Bogotá',
     'events.ev3d2':    '📅 Cada sábado',
     'events.ev3d3':    '🎯 Nivel abierto',
-    'events.register': 'Registrarse',
-    'events.moreCopy': '¿Quieres ver todos los torneos, ligas y actividades de la tienda?',
-    'events.moreCta':  'Ver Calendario Completo',
+    'events.register':   'Registrarse',
+    'events.moreCopy':   '¿Quieres ver todos los torneos, ligas y actividades de la tienda?',
+    'events.moreCta':    'Ver Calendario Completo',
+    'events.price':      'Precio',
+    'events.enroll':     'Inscribirse',
+    'events.enrollSoon': 'Próximamente',
+    'events.noEvents':   'No hay eventos activos por el momento.',
+    'events.typeOther':  'Evento',
+
+    /* Gallery */
+    'gallery.tag':      'Galería',
+    'gallery.title':    'Momentos Épicos',
+    'gallery.subtitle': 'Revive los mejores momentos de nuestra comunidad',
 
     /* Community */
     'community.tag':        'Comunidad',
@@ -234,9 +244,19 @@ const i18n = {
     'events.ev3d1':    '📍 Dice and Brush — Bogotá',
     'events.ev3d2':    '📅 Every Saturday',
     'events.ev3d3':    '🎯 Open skill level',
-    'events.register': 'Register',
-    'events.moreCopy': 'Want to see all tournaments, leagues and store events?',
-    'events.moreCta':  'View Full Calendar',
+    'events.register':   'Register',
+    'events.moreCopy':   'Want to see all tournaments, leagues and store events?',
+    'events.moreCta':    'View Full Calendar',
+    'events.price':      'Price',
+    'events.enroll':     'Enroll',
+    'events.enrollSoon': 'Coming soon',
+    'events.noEvents':   'No active events at this time.',
+    'events.typeOther':  'Event',
+
+    /* Gallery */
+    'gallery.tag':      'Gallery',
+    'gallery.title':    'Epic Moments',
+    'gallery.subtitle': 'Relive the best moments of our community',
 
     /* Community */
     'community.tag':        'Community',
@@ -328,6 +348,7 @@ const i18n = {
    ============================================================ */
 let currentLang = 'es';
 let mobileNavOpen = false;
+let animObserver = null;
 
 
 /* ============================================================
@@ -499,6 +520,10 @@ function applyTranslations(lang) {
   } catch (_) {
     // localStorage not available — ignore
   }
+
+  // Re-render data-driven sections
+  renderEvents(lang);
+  renderGallery(lang);
 }
 
 function toggleLanguage() {
@@ -523,12 +548,137 @@ langToggle.addEventListener('click', toggleLanguage);
 
 
 /* ============================================================
+   RENDER EVENTS (driven by data/events.js)
+   ============================================================ */
+function renderEvents(lang) {
+  const container = document.getElementById('events-container');
+  if (!container || !window.DICE_EVENTS) return;
+
+  const dict = i18n[lang] || i18n.es;
+  const typeMap = {
+    wh40k:    dict['events.type40k']  || 'Warhammer 40,000',
+    aos:      dict['events.typeAoS']  || 'Age of Sigmar',
+    killteam: dict['events.typeKT']   || 'Kill Team',
+    other:    dict['events.typeOther'] || 'Evento',
+  };
+
+  const activeEvents = (window.DICE_EVENTS.events || []).filter(e => e.active);
+
+  if (activeEvents.length === 0) {
+    container.innerHTML = `<p class="events-empty">${dict['events.noEvents']}</p>`;
+    return;
+  }
+
+  container.innerHTML = activeEvents.map(ev => {
+    const title       = (ev.title[lang]       || ev.title.es       || '').trim();
+    const dateLabel   = (ev.dateLabel[lang]   || ev.dateLabel.es   || '').trim();
+    const description = (ev.description[lang] || ev.description.es || '').trim();
+    const typeLabel   = typeMap[ev.type] || typeMap.other;
+
+    const priceHtml = ev.price
+      ? `<div class="event-price">
+           <span class="price-label">${dict['events.price']}:</span>
+           <span class="price-value">${ev.price}</span>
+         </div>`
+      : '';
+
+    const detailsHtml = (ev.details || []).map(d => `<li>${d}</li>`).join('');
+
+    const enrollHtml = ev.enrollUrl
+      ? `<a href="${ev.enrollUrl}" class="btn btn-primary btn-sm"
+            target="_blank" rel="noopener noreferrer">
+           ${dict['events.enroll']}
+         </a>`
+      : `<button class="btn btn-primary btn-sm" disabled>
+           ${dict['events.enrollSoon']}
+         </button>`;
+
+    return `
+      <article class="event-card${ev.featured ? ' event-featured' : ''}" aria-label="${title}">
+        <div class="event-header">
+          ${ev.featured ? `<span class="event-badge event-badge--featured">${dict['events.featured']}</span>` : ''}
+          <span class="event-type">${typeLabel}</span>
+        </div>
+        <div class="event-body">
+          <h3 class="event-title">${title}</h3>
+          <time class="event-date" datetime="${ev.date}">${dateLabel}</time>
+          ${priceHtml}
+          <p class="event-desc">${description}</p>
+          <ul class="event-details" role="list">${detailsHtml}</ul>
+        </div>
+        <div class="event-footer">${enrollHtml}</div>
+      </article>`;
+  }).join('');
+
+  // On language re-render, show cards instantly (already animated on initial load)
+  if (animObserver) {
+    container.querySelectorAll('.event-card').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+      el.style.transition = 'none';
+    });
+  }
+}
+
+
+/* ============================================================
+   RENDER GALLERY (driven by data/events.js)
+   ============================================================ */
+function renderGallery(lang) {
+  const container = document.getElementById('gallery-container');
+  if (!container || !window.DICE_EVENTS) return;
+
+  const items = window.DICE_EVENTS.gallery || [];
+
+  if (items.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
+    const title       = (item.title[lang]       || item.title.es       || '').trim();
+    const description = (item.description[lang] || item.description.es || '').trim();
+    const date        = item.date
+      ? (item.date[lang] || item.date.es || '').trim()
+      : '';
+
+    return `
+      <div class="gallery-card">
+        <div class="gallery-img-wrap">
+          <img
+            src="${item.image}"
+            alt="${title}"
+            loading="lazy"
+            onerror="this.closest('.gallery-img-wrap').classList.add('img-error')"
+          />
+          <div class="gallery-img-fallback" aria-hidden="true">📸</div>
+        </div>
+        <div class="gallery-card-body">
+          ${date ? `<span class="gallery-date">${date}</span>` : ''}
+          <h3 class="gallery-title">${title}</h3>
+          <p class="gallery-desc">${description}</p>
+        </div>
+      </div>`;
+  }).join('');
+
+  // On language re-render, show cards instantly
+  if (animObserver) {
+    container.querySelectorAll('.gallery-card').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+      el.style.transition = 'none';
+    });
+  }
+}
+
+
+/* ============================================================
    CARD ENTRANCE ANIMATIONS (lightweight)
    Uses IntersectionObserver to add 'visible' class
    CSS handles the actual animation (no JS animation library needed)
    ============================================================ */
 const animatedEls = document.querySelectorAll(
-  '.event-card, .why-card, .pillar, .community-card, .contact-card, .prod-cat, .path-step'
+  '.event-card, .why-card, .pillar, .community-card, .contact-card, .prod-cat, .path-step, .gallery-card'
 );
 
 // Add initial hidden state via JS (so non-JS users still see content)
@@ -538,7 +688,7 @@ animatedEls.forEach((el, i) => {
   el.style.transition = `opacity 0.5s ease ${i * 0.05}s, transform 0.5s ease ${i * 0.05}s`;
 });
 
-const animObserver = new IntersectionObserver((entries) => {
+animObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       entry.target.style.opacity = '1';
